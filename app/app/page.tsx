@@ -5,12 +5,25 @@ import { useEffect, useState } from "react"
 import { SignedInSessionResource } from "@clerk/types"
 import Onboarding from "@/components/onboarding/Onboarding"
 import SelectInterests from "@/components/onboarding/SelectInterests"
+import { Tables } from "@/database/database.types"
+import LiveChannels from "@/components/livechannels/LiveChannels"
+import HomeFeed from "@/components/homeFeed/HomeFeed"
+
 
 export default function AppPage() {
     const { session } = useSession()
-    const { supabase, setSupabaseClient, getUserData } = useDatabase()
+    const { 
+        supabase, 
+        setSupabaseClient, 
+        getUserData, 
+        getLivestreams, 
+        setLivestreamsMockData, 
+        removingLivestreamsMockData 
+    } = useDatabase()
+
     const [showOnBoarding, setShowOnboarding] = useState<boolean>(false)
     const [showSelectInterests, setShowSelectInterests] = useState<boolean>(false)
+    const [livestreams, setLivestreams] = useState<Tables<'livestreams'>[]>([])
 
     useEffect(() => {
         async function initializeSupabase(session: SignedInSessionResource) {
@@ -39,13 +52,16 @@ export default function AppPage() {
                     } else {
                         setShowOnboarding(false)
                         setShowSelectInterests(false)
+                        getLivestreams().then((livestreams) => {
+                            return setLivestreams(livestreams || [])
+                        })
                     }
                 } else {
                     setShowOnboarding(true)
                 }
             })
         }
-    }, [supabase, session?.user.id, getUserData])
+    }, [supabase, session?.user.id, getUserData, getLivestreams])
 
     if(showOnBoarding){
         return <Onboarding />
@@ -56,8 +72,13 @@ export default function AppPage() {
     }
 
     return (
-        <section className="flex items-center justify-center">
-            <h1>App is runnig</h1>
-        </section>
+        <>
+            <section className="grid h-full grid-cols-[auto_1fr]">
+                <LiveChannels livestreams={livestreams} />
+                <HomeFeed livestreams={livestreams} />
+            </section>
+            <button onClick={() => setLivestreamsMockData()}>Set Mock Data</button>
+            <button onClick={() => removingLivestreamsMockData()}>Remove Mock Data</button>
+        </>
     )
 }

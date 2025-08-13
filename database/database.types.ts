@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      livestreams: {
+        Row: {
+          categories: string[]
+          created_at: string
+          id: string
+          imageUrl: string
+          name: string
+          username: string
+        }
+        Insert: {
+          categories: string[]
+          created_at?: string
+          id?: string
+          imageUrl: string
+          name: string
+          username: string
+        }
+        Update: {
+          categories?: string[]
+          created_at?: string
+          id?: string
+          imageUrl?: string
+          name?: string
+          username?: string
+        }
+        Relationships: []
+      }
       users: {
         Row: {
           created_at: string
